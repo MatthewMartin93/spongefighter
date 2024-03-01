@@ -1,0 +1,1889 @@
+import processing.sound.*;
+SoundFile music;
+SoundFile r1;
+SoundFile r2;
+SoundFile r3;
+SoundFile win;
+//-1 = controls screen, 0 = main menu/title screen, 1 = character selection screen, 2 = you have chosen screen, 3 = round one screen, 4 = round 2 screen, 5 = round 3 (final round) screen, 6 = win screen
+int screen = 0;
+//1 = spongebob, 2 = plankton, 3 = patrick, 4 = Mr. Krabs, 5 = Squidward, 6 = Gary the snail
+int selection = 0;
+//Spongebob and Patrick are easy and take normal damage
+//Mr. Krabs and Squidward are normal and take 1.5x damage
+//Plankton is hard and takes 2x damage
+//Gary is extreme and takes 3x damage
+PImage sponge;
+PImage plank;
+PImage pat;
+PImage gary;
+PImage spongebobstr;
+PImage spongepunch;
+PImage plankpunch;
+PImage patpunch;
+PImage garypunch;
+PImage bubble;
+PImage bubblepunch;
+PImage krab;
+PImage krabpunch;
+PImage squid;
+PImage squidpunch;
+PImage spc;
+PImage doodle;
+PImage doodlepunch;
+PImage kevin;
+PImage kevinpunch;
+PImage field;
+PImage krust;
+
+//exes and whys
+float spx = 50;
+int spy = 400;
+float sphbx = spx +250;
+
+float plankx = 50;
+int planky = 550;
+float pkhbx = plankx + 100;
+
+float patx = 50;
+int paty = 400;
+float pathbx = patx + 225;
+
+float krabx= 50;
+int kraby = 350;
+float kbhbx = krabx+ 275;
+
+float squidx = 50;
+int squidy = 350;
+float sqhbx = squidx + 275;
+
+float garyx = 50;
+int garyy = 525;
+float gyhbx = garyx + 100;
+
+boolean punch = false;
+//health
+
+int enemyhit = 0;
+int kevinenemyhit = 0;
+int doodleenemyhit = 0;
+
+int playerhit = 0;
+
+int eh = 100;
+int keh = 150;
+int deh = 300;
+
+int ph = 100;
+
+boolean wr1 = false;
+boolean wr2 = false;
+boolean wr3 = false;
+
+float speed = 7.5;
+
+float bubblex = 600;
+int bubbley = 350;
+float bubblehbx = bubblex + 165;
+
+float kevinx = 600;
+int keviny = 350;
+float kevinhb = kevinx + 100;
+
+float doodlex = 600;
+int doodley = 350;
+float doodlehb = doodlex + 100;
+
+boolean bubbleshow = false;
+boolean kevinshow = false;
+boolean doodleshow = false;
+
+boolean bubbledead = false;
+boolean kevindead = false;
+boolean doodledead = false;
+
+
+int direction = 1;
+float bubblespeed = -2;
+float kevinspeed = -5;
+float doodlespeed = -10;
+
+
+
+boolean moveLeft = false;
+boolean moveRight = false;
+
+//punching sprite
+boolean showSprite1 = false;
+boolean showSprite2 = false;
+boolean showSprite3 = false;
+boolean showSprite6 = false;
+boolean showSprite4 = false;
+boolean showSprite5 = false;
+boolean showBubblepunch = false;
+boolean showKevinpunch = false;
+boolean showDoodlepunch = false;
+int spriteStartTime; // Store the start time when sprite is shown
+int spriteStartTime2;
+int spriteStartTime3;
+int spriteStartTime6;
+int bubbleStartTime;
+int kevinStartTime;
+int doodleStartTime;
+int spriteDuration = 100; // Duration in milliseconds (0.1 seconds)
+int bubbleDuration = 200;
+int kevinDuration = 200;
+int doodleDuration = 200;
+
+void setup() {
+  music = new SoundFile(this, "01. SpongeBob SquarePants Theme Song.mp3");
+  r1 = new SoundFile(this, "SpongeBob_Production_Music_Twelfth_Street_Rag.mp3");
+  r2 = new SoundFile(this, "SpongeBob Production Music You're Nice [ ytmp3x.cc ] 963342.mp3");
+  r3 = new SoundFile(this, "SpongeBob_Trap_Remix_Krusty_Krab.mp3");
+  win = new SoundFile(this, "29. Goofy Goober Rock.mp3");
+music.play();
+  frameRate(120);
+  size(1080,720);
+  background(255);
+  sponge = loadImage("idle sponge.png");
+  plank = loadImage("idle plank.png");
+  pat = loadImage("idlepat.png");
+  gary = loadImage("garyidle.png");
+  spongebobstr = loadImage("spongebobstreet.png");
+  spongepunch = loadImage("sponge punch 1.png");
+  plankpunch = loadImage("plank punch 1.png");
+  patpunch = loadImage("patpunch1.png");
+  garypunch = loadImage("garypunch1.png");
+  bubble = loadImage("bubblebassidle.png");
+  bubblepunch = loadImage("bubblebasspunch.png");
+  squid = loadImage("idlesquid.png");
+  squidpunch = loadImage("squidpunch.png");
+  krab = loadImage("krabidle.png");
+  krabpunch = loadImage("krabpunch.png");
+  spc = loadImage("sponge celebrate.png");
+  doodle = loadImage("doodlebobidle.png");
+  doodlepunch = loadImage("doodlebobpunch.png");
+  kevin = loadImage("kevinidle.png");
+  kevinpunch = loadImage("kevinpunch.png");
+  field = loadImage("the fields.png");
+  krust = loadImage("krust.png");
+}
+void draw(){
+  if (screen == 3) {
+  collisionr1();
+  roundOne();
+  }
+  if (screen == 4) {
+  collisionr2();
+  roundTwo();
+  }
+  if (screen == 5 && doodledead == false) {
+  collisionr3();
+  roundThree();
+  }
+  mainMenu();
+  controlScreen();
+  charSelect();
+  selection();
+  if (doodledead == true) {
+  winScreen();
+  }
+  
+ }
+ 
+ void mainMenu() {
+   if (screen == 0) {
+  image(sponge, -71, 187, 300, 300);
+  image(plank, 625, 485, 50,50);
+  image(gary, 720, 609, 140,140);
+  play();
+  quit();
+  controls();
+  spongeFighter();
+  credits();
+  imageRotation();
+  
+ }
+ }
+ 
+ void controls() {
+   if (screen==0) {
+  if(mouseX>250 && mouseY>500 && mouseX<420 && mouseY<525 && mousePressed==true){
+    screen = -1;
+    background(255);
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>250 && mouseY>500 && mouseX<420 && mouseY<525){
+    fill(175);
+    rect(250, 500, 170, 25);
+    fill(17);
+    textSize(17);
+    text("CONTROLS", 300, 520);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(250, 500, 170, 25);
+    fill(17);
+    textSize(17);
+    text("CONTROLS", 300, 520);
+ }
+ }
+ }
+ 
+ 
+ void controlScreen() {
+   if (screen == -1) {
+   textSize(75);
+   text("HOW TO PLAY:", 325, 75);
+   textSize(50);
+   text("A = move left", 100, 400);
+   text("D = move right", 700, 400);
+   //text("SPACE = jump", 400, 200);
+   text("X = punch", 455, 600);
+   
+  if(mouseX>50 && mouseY>610 && mouseX<220 && mouseY<685 && mousePressed==true){
+    fill(225);
+    rect(50,610,170,75);
+    screen = 0;
+    background(255);
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>50 && mouseY>610 && mouseX<220 && mouseY<685){
+    fill(175);
+    rect(50,610,170,75);
+    fill(0);
+    textSize(38);
+    text("Back", 95, 660);
+    
+    
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(50,610,170,75);
+    fill(0);
+    textSize(38);
+    text("Back", 95, 660);
+    
+  }
+   
+ }
+ }
+ void quit (){
+   
+   
+   
+ if (screen==0) {
+  if(mouseX>430 && mouseY>500 && mouseX<630 && mouseY<525 && mousePressed==true){
+    System.exit(0);
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>430 && mouseY>500 && mouseX<630 && mouseY<525){
+    fill(175);
+    rect(430, 500, 200, 25);
+    fill(17);
+    textSize(17);
+    text("QUIT", 515, 520);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(430, 500, 200, 25);
+    fill(17);
+    textSize(17);
+    text("QUIT", 515, 520);
+ }
+ }
+ }
+ 
+ void imageRotation() {
+   if (screen == 0) {
+   rotate(PI/2);
+   image(pat, -38,-846, 225, 225);
+ }
+ }
+ void play() {
+ //if mouse pressed turn green   
+ //Checks if cursor is inside of button & turns it green when clicked
+ if (screen == 0) {
+  if(mouseX>250 && mouseY>400 && mouseX<850 && mouseY<475 && mousePressed==true){
+    fill(225);
+    rect(250,400,600,75);
+    screen = 1;
+    background(255);
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>250 && mouseY>400 && mouseX<850 && mouseY<475){
+    fill(175);
+    rect(250,400,600,75);
+    fill(17);
+    textSize(55);
+    text("PLAY", 477, 455);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(250,400,600,75);
+    fill(17);
+    textSize(55);
+    text("PLAY", 477, 455);
+  }
+ }
+ }
+ 
+ void spongeFighter() {
+   if (screen==0) {
+   fill(0);
+   textSize(100);
+   text("Sponge Fighter 1", 213, 250);
+   }
+ }
+ 
+ void credits () {
+   if (screen == 0) {
+   textSize(15);
+   text("joshuasanchezshaneprickenmatthewmartin Studios LLC Corporation Productions", 0, 700);
+   text("Reserved TradeMark Communications Media Studios Creative Visual ©", 0, 712);
+ }
+ }
+ 
+ void charSelect() {
+   if (screen==1) 
+   {
+     if(mouseX>150 && mouseY>200 && mouseX<350 && mouseY<265 && mousePressed==true){
+    fill(225);
+    rect(150,200,200,65);
+    background(255);
+    screen = 2;
+    selection = 1;
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>150 && mouseY>200 && mouseX<350 && mouseY<265){
+    fill(175);
+    rect(150,200,200,65);
+    fill(17);
+    textSize(35);
+    text("Spongebob", 165, 245);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(150,200,200,65);
+    fill(17);
+    textSize(35);
+    text("Spongebob", 165, 245);
+  }
+ }
+ if (screen == 1) {
+ image(sponge, 155, 25, 175, 175);
+ image(plank, 475, 150, 50,50);
+ image(gary, 713, 426, 90, 90);
+ image(pat, 651, -15, 225, 225);
+ image(krab, 155, 350, 150, 150);
+ image(squid, 405, 300, 200,200);
+ }
+ //yuh
+ if (screen ==1) {
+ if(mouseX>400 && mouseY>200 && mouseX<600 && mouseY<265 && mousePressed==true){
+    fill(225);
+    rect(400,200,200,65);
+    background(255);
+    screen = 2;
+    selection =2;
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>400 && mouseY>200 && mouseX<600 && mouseY<265){
+    fill(175);
+    rect(400,200,200,65);
+    fill(17);
+    textSize(35);
+    text("Plankton", 435, 245);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(400,200,200,65);
+    fill(17);
+    textSize(35);
+    text("Plankton", 435, 245);
+  }
+ }
+ 
+ //patrick
+ if (screen ==1) {
+ if(mouseX>650 && mouseY>200 && mouseX<850 && mouseY<265 && mousePressed==true){
+    fill(225);
+    rect(650,200,200,65);
+    background(255);
+    screen = 2;
+    selection = 3;
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>650 && mouseY>200 && mouseX<850 && mouseY<265){
+    fill(175);
+    rect(650,200,200,65);
+    fill(17);
+    textSize(35);
+    text("Patrick", 700, 245);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(650,200,200,65);
+    fill(17);
+    textSize(35);
+    text("Patrick", 700, 245);
+
+ }
+}
+
+//Mr crabs
+if (screen ==1) {
+  if(mouseX>150 && mouseY>500 && mouseX<350 && mouseY<565 && mousePressed==true){
+    fill(225);
+    rect(150,500,200,65);
+    background(255);
+    screen = 2;
+    selection = 4;
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>150 && mouseY>500 && mouseX<350 && mouseY<565){
+    fill(175);
+    rect(150,500,200,65);
+    fill(17);
+    textSize(35);
+    text("Mr. Krabs", 185, 545);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(150,500,200,65);
+    fill(17);
+    textSize(35);
+    text("Mr. Krabs", 185, 545);
+  }
+}
+
+//squidward
+if (screen ==1) {
+  if(mouseX>400 && mouseY>500 && mouseX<600 && mouseY<565 && mousePressed==true){
+    fill(225);
+    rect(400,500,200,65);
+    background(255);
+    screen = 2;
+    selection = 5;
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>400 && mouseY>500 && mouseX<600 && mouseY<565){
+    fill(175);
+    rect(400,500,200,65);
+    fill(17);
+    textSize(35);
+    text("Squidward", 420, 545);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(400,500,200,65);
+    fill(17);
+    textSize(35);
+    text("Squidward", 420, 545);
+  }
+}
+
+//Gary the snail
+if (screen ==1) {
+  if(mouseX>650 && mouseY>500 && mouseX<850 && mouseY<565 && mousePressed==true){
+    fill(225);
+    rect(650,500,200,65);
+    background(255);
+    screen = 2;
+    selection = 6;
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>650 && mouseY>500 && mouseX<850 && mouseY<565){
+    fill(175);
+    rect(650,500,200,65);
+    fill(17);
+    textSize(35);
+    text("Gary", 715, 545);
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(650,500,200,65);
+    fill(17);
+    textSize(35);
+    text("Gary", 715, 545);
+  }
+}
+}
+
+void selection() {
+  if (screen == 2 && selection == 1) {
+    image(sponge, 359, 150, 400, 400);
+    textSize(90);
+    fill(0);
+    text("You have chosen...", 245, 119);
+    text("SPONGEBOB!", 320, 650);
+  }
+  if (screen == 2 && selection == 2) {
+    image(plank, 359, 150, 400, 400);
+    textSize(90);
+    fill(0);
+    text("You have chosen...", 245, 119);
+    text("PLANKTON!", 350, 650);
+    textSize(17);
+    text("(ignore the quality)", 10, 710);
+  }
+  if (screen == 2 && selection == 3) {
+    image(pat, 359, 150, 400, 400);
+    textSize(90);
+    fill(0);
+    text("You have chosen...", 245, 119);
+    text("PATRICK!", 385, 650);
+  }
+  if (screen == 2 && selection == 4) {
+    image(krab, 359, 150, 400, 400);
+    textSize(90);
+    fill(0);
+    text("You have chosen...", 245, 119);
+    text("MR. KRABS!", 350, 650);
+  }
+  if (screen == 2 && selection == 5) {
+    image(squid, 359, 150, 400, 400);
+    textSize(90);
+    fill(0);
+    text("You have chosen...", 245, 119);
+    text("SQUIDWARD!", 315, 650);
+  }
+  if (screen == 2 && selection == 6) {
+    image(gary, 359, 150, 400, 400);
+    textSize(90);
+    fill(0);
+    text("You have chosen...", 245, 119);
+    text("GARY!", 465, 650);
+    textSize(17);
+    text("(ignore the quality)", 10, 710);
+  }
+  if (screen == 2) {
+    if(mouseX>880 && mouseY>610 && mouseX<1050 && mouseY<685 && mousePressed==true){
+    fill(225);
+    rect(880,610,170,75);
+    screen = 3;
+    background(255);
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>880 && mouseY>610 && mouseX<1050 && mouseY<685){
+    fill(175);
+    rect(880,610,170,75);
+    fill(0);
+    textSize(38);
+    text("TO FIGHT!", 885, 660);
+    
+    
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(880,610,170,75);
+    fill(0);
+    textSize(38);
+    text("TO FIGHT!", 885, 660);
+    
+  }
+  if (screen == 2) {
+    if(mouseX>50 && mouseY>610 && mouseX<220 && mouseY<685 && mousePressed==true){
+    fill(225);
+    rect(50,610,170,75);
+    screen = 1;
+    background(255);
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>50 && mouseY>610 && mouseX<220 && mouseY<685){
+    fill(175);
+    rect(50,610,170,75);
+    fill(0);
+    textSize(38);
+    text("Back", 95, 660);
+    
+    
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(50,610,170,75);
+    fill(0);
+    textSize(38);
+    text("Back", 95, 660);
+  }
+}
+}
+}
+
+void roundOne() {
+  if(music.isPlaying())
+  {
+  music.pause();
+  }
+  if(!r1.isPlaying())
+  {
+    r1.play();
+  }
+  if (screen == 3 || screen == 4 || screen == 5) {
+  
+    if (screen == 3) {
+    rect(bubblex + 145, bubbley, 190, 300);
+    if (showBubblepunch == true) {
+      rect(bubblex, bubbley, 290, 300);
+    }
+    }
+    if (screen == 4) {
+      rect(kevinx + 40, keviny, 235, 300);
+      if (showKevinpunch == true) {
+        rect(kevinx + 35, keviny, 240, 300);
+      }
+    }
+    if (selection == 1) {
+      rect(spx + 75, spy, 200, 275);
+    }
+    if (selection == 2) {
+      rect(plankx+25, planky, 75, 100);
+    }
+    if (selection == 3) {
+      rect(patx + 50, paty, 225, 275);
+    }
+    if (selection == 4) {
+      rect(krabx + 75, kraby, 180, 275);
+    }
+    if (selection == 5) {
+      rect(squidx + 100, squidy + 55, 115, 225);
+    }
+    if (selection == 6) {
+      rect (garyx + 10, garyy, 100, 100);
+    }
+    
+  image(spongebobstr, 0,0,1080,720);
+  textSize(50);
+  fill(0);
+  if (bubbledead == false) {
+  text("Enemy Health: " + eh, 600, 100, 400, 200);
+  text("Player Health: " + ph, 200, 100, 400, 200);
+  
+  }
+  else if (bubbledead == true) {
+    text("Round 1 Complete", 350, 70);
+    bubblex=620;
+  }
+  int currentTime = millis();
+  
+    if (screen == 3){
+      
+      
+  image(bubble, bubblex, bubbley, 400, 300);
+  
+  
+  bubblex = bubblex + bubblespeed;
+    
+    
+ if (bubblex <= 450 ) {
+  
+    direction = direction * -1;
+    bubblex += 5;
+    bubblespeed= -bubblespeed;
+ }
+ if (bubblex >= 700) {
+   direction =  direction * -1;
+   bubblex -= 5;
+   bubblespeed= -bubblespeed;
+ }
+
+}
+  if (wr1 == false) {
+  switch(selection) {
+  case 1: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(sponge, spx, spy, 275,275);
+  break;
+  }
+  case 2: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(plank, plankx, planky, 100,100);
+  break;
+  }
+  case 3: 
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(pat, patx, paty, 275, 275);
+  break;
+  }
+  case 4:
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(krab, krabx, kraby, 275, 275);break;
+  }
+  case 5:
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(squid, squidx, squidy, 275, 275);break;
+  }
+  
+  case 6: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(gary, garyx, garyy, 100,100);
+  break;
+}
+}
+  }
+  }
+if (screen == 3 && wr1 == false) {
+  
+    if (moveLeft && selection == 1) {
+      spx -= speed; // Move left
+    } else if (moveRight) {
+      spx += speed; // Move right
+    }
+    if (moveLeft && selection == 2) {
+      plankx -= speed; // Move left
+    } else if (moveRight) {
+      plankx += speed; // Move right
+    }
+    if (moveLeft && selection == 3) {
+      patx -= speed; // Move left
+    } else if (moveRight) {
+      patx += speed; // Move right
+    }
+    if (moveLeft && selection == 4) {
+      krabx -= speed; // Move left
+    } else if (moveRight) {
+      krabx += speed; // Move right
+    }
+    if (moveLeft && selection == 5) {
+      squidx -= speed; // Move left
+    } else if (moveRight) {
+      squidx += speed; // Move right
+    }
+    if (moveLeft && selection == 6) {
+      garyx -= speed; // Move left
+    } else if (moveRight) {
+      garyx += speed; // Move right
+    }
+    
+    if (screen == 3 && selection == 1){
+    if (showSprite1) {
+    image(spongepunch, spx, spy, 275, 275);
+    int currentTime = millis(); // Get current time
+    if (currentTime - spriteStartTime >= spriteDuration) {
+      showSprite1 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+ }
+    if (screen == 3 && selection == 2){
+    if (showSprite2) {
+    image(plankpunch, plankx, planky, 100, 100);
+    int currentTime2 = millis(); // Get current time
+    if (currentTime2 - spriteStartTime2 >= spriteDuration) {
+      showSprite2 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 3 && selection == 3){
+    if (showSprite3) {
+    image(patpunch, patx, paty, 275, 275);
+    int currentTime3 = millis(); // Get current time
+    if (currentTime3 - spriteStartTime2 >= spriteDuration) {
+      showSprite3 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 3 && selection == 4){
+    if (showSprite4) {
+    image(krabpunch, krabx, kraby, 275, 275);
+    int currentTime4 = millis(); // Get current time
+    if (currentTime4 - spriteStartTime2 >= spriteDuration) {
+      showSprite4 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 3 && selection == 5){
+    if (showSprite5) {
+    image(squidpunch, squidx, squidy, 275, 275);
+    int currentTime5 = millis(); // Get current time
+    if (currentTime5 - spriteStartTime2 >= spriteDuration) {
+      showSprite5 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 3 && selection == 6){
+    if (showSprite6) {
+    image(garypunch, garyx + 8, garyy, 100, 100);
+    int currentTime6 = millis(); // Get current time
+    if (currentTime6 - spriteStartTime6 >= spriteDuration) {
+      showSprite6 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  
+  float bubblepunchr = random(1,100);
+  
+  if (bubblepunchr > 97) {
+    bubbleStartTime = millis();
+    showBubblepunch = true;
+  }
+    if (showBubblepunch) {
+    image(bubblepunch, bubblex, bubbley, 400, 300);
+    int currentTimeBubble = millis();
+    if (currentTimeBubble - bubbleStartTime >= bubbleDuration) {
+    showBubblepunch = false;
+    bubbleshow = false;
+  }
+ }
+  
+  
+}
+if (screen == 3&& wr1 == true) {
+  if (selection == 1) {
+    image(spc, spx, spy, 275, 275);
+  }
+  if (selection == 2) {
+    image(plank, plankx, planky, 100, 100);
+  }
+  if (selection == 3) {
+    image(pat, patx, paty, 275, 275);
+  }
+  if (selection == 4) {
+    image(krab, krabx, kraby, 275, 275);
+  }
+  if (selection == 5) {
+    image(squid, squidx, squidy, 275, 275);
+  }
+  if (selection == 6) {
+    image(gary, garyx, garyy, 100, 100);
+  }
+  if(mouseX>850 && mouseY>610 && mouseX<1050 && mouseY<685 && mousePressed==true){
+    
+    screen = 4;
+    background(255);
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>850 && mouseY>610 && mouseX<1050 && mouseY<685){
+    fill(175);
+    rect(850,610,200,75);
+    fill(0);
+    textSize(38);
+    text("Next Round", 860, 660);
+    
+    
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(850,610,200,75);
+    fill(0);
+    textSize(38);
+    text("Next Round", 860, 660);
+    
+  }
+}
+}
+
+
+
+void collisionr1() {
+
+if (screen == 3) {
+if (showSprite1 == true && selection == 1){
+   if (spx + 150  > bubblex && sphbx < bubblehbx && punch == false){
+   enemyhit += 1;
+   bubblex += 50;
+   punch = true;
+}
+}
+if (showSprite2 == true && selection == 2){
+   if (plankx + 25 > bubblex && pkhbx < bubblehbx && punch == false){
+   enemyhit += 1;
+   bubblex += 50;
+   punch = true;
+}
+}
+if (showSprite3 == true && selection == 3){
+   if (patx + 125  > bubblex && pathbx < bubblehbx && punch == false){
+   enemyhit += 1;
+   bubblex += 50;
+   punch = true;
+}
+}
+if (showSprite4 == true && selection == 4){
+   if (krabx + 75  > bubblex && kbhbx < bubblehbx && punch == false){
+   enemyhit += 1;
+   bubblex += 50;
+   punch = true;
+}
+}
+if (showSprite5 == true && selection == 5){
+   if (squidx + 100  > bubblex && sqhbx < bubblehbx && punch == false){
+   enemyhit += 1;
+   bubblex += 50;
+   punch = true;
+}
+}
+if (showSprite6 == true && selection == 6){
+   if (garyx + 10  > bubblex && gyhbx < bubblehbx && punch == false){
+   enemyhit += 1;
+   bubblex += 50;
+   punch = true;
+}
+}
+if (showBubblepunch == true && selection == 1 && bubbleshow == false) {
+   if (spx + 225 > bubblex) {
+   ph -=1;
+   bubbleshow = true;
+   }
+}
+
+if (showBubblepunch == true && selection == 2 && bubbleshow == false) {
+   if (plankx + 75 > bubblex) {
+   ph -=3;
+   bubbleshow = true;
+   }
+}
+
+if (showBubblepunch == true && selection == 3 && bubbleshow == false) {
+   if (patx + 200 > bubblex) {
+   ph -=1;
+   bubbleshow = true;
+   }
+}
+
+if (showBubblepunch == true && selection == 4 && bubbleshow == false) {
+   if (krabx + 225 > bubblex) {
+   ph -=2;
+   bubbleshow = true;
+   }
+}
+
+if (showBubblepunch == true && selection == 5 && bubbleshow == false) {
+   if (squidx + 175 > bubblex) {
+   ph -=2;
+   bubbleshow = true;
+   }
+}
+if (showBubblepunch == true && selection == 6 && bubbleshow == false) {
+   if (garyx + 100 > bubblex) {
+   ph -=4;
+   bubbleshow = true;
+   }
+}
+
+
+
+
+
+if (enemyhit == 1) {
+  eh = 90;
+    
+    
+  
+}
+if (enemyhit == 2) {
+  eh = 80;
+    
+}
+if (enemyhit == 3) {
+  eh = 70;
+    
+  
+}
+if (enemyhit == 4) {
+  eh = 60;
+  
+ 
+}
+if (enemyhit == 5) {
+  eh = 50;
+    
+  
+}
+if (enemyhit == 6) {
+  eh = 40;
+ 
+  
+}
+if (enemyhit == 7) {
+  eh = 30;
+    
+  
+}
+if (enemyhit == 8) {
+  eh = 20;
+    
+ 
+}
+if (enemyhit ==9) {
+  eh = 10;
+   
+  
+}
+if (enemyhit == 10) {
+  eh = 0;
+  bubbledead = true;
+  wr1 = true;
+  spx = 100;
+  plankx = 100;
+  patx = 100;
+  krabx = 100;
+  squidx = 100;
+  garyx = 100;
+  
+}
+if (bubblex > 780){
+  bubblex = 780;
+}
+}
+}
+
+void roundTwo() {
+if (screen == 4) {
+  if(!r2.isPlaying())
+  {
+   r2.play(); 
+  }
+  if(r1.isPlaying())
+  {
+   r1.pause(); 
+  }
+  
+  
+
+
+  image(field, 0, 0, 1080, 720);
+  
+  textSize(50);
+  fill(0);
+  if (kevindead == false) {
+  text("Enemy Health: " + keh, 600, 100, 400, 200);
+  text("Player Health: " + ph, 200, 100, 400, 200);
+  
+  }
+  else if (kevindead == true) {
+    text("Round 2 Complete", 350, 70);
+    kevinx=620;
+  }
+  int currentTime = millis();
+  
+    if (screen == 4){
+      
+  if (showKevinpunch == false && kevindead == false) {
+  image(kevin, kevinx, keviny, 400, 300);
+  }
+  if (kevindead == true) {
+  image(kevin, kevinx, keviny, 400, 300);
+  }
+  
+  
+  
+  kevinx = kevinx + kevinspeed;
+    
+    
+ if (kevinx <= 450 ) {
+  
+    direction = direction * -1;
+    kevinx += 5;
+    kevinspeed= -kevinspeed;
+ }
+ if (kevinx >= 700) {
+   direction =  direction * -1;
+   kevinx -= 5;
+   kevinspeed= -kevinspeed;
+ }
+
+}
+  
+  switch(selection) {
+  case 1: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(sponge, spx, spy, 275,275);
+  break;
+  }
+  case 2: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(plank, plankx, planky, 100,100);
+  break;
+  }
+  case 3: 
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(pat, patx, paty, 275, 275);
+  break;
+  }
+  case 4:
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(krab, krabx, kraby, 275, 275);break;
+  }
+  case 5:
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(squid, squidx, squidy, 275, 275);break;
+  }
+  
+  case 6: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(gary, garyx, garyy, 100,100);
+  break;
+}
+}
+  }
+  
+ 
+  
+    if (moveLeft && selection == 1) {
+      spx -= speed; // Move left
+    } else if (moveRight) {
+      spx += speed; // Move right
+    }
+    if (moveLeft && selection == 2) {
+      plankx -= speed; // Move left
+    } else if (moveRight) {
+      plankx += speed; // Move right
+    }
+    if (moveLeft && selection == 3) {
+      patx -= speed; // Move left
+    } else if (moveRight) {
+      patx += speed; // Move right
+    }
+    if (moveLeft && selection == 4) {
+      krabx -= speed; // Move left
+    } else if (moveRight) {
+      krabx += speed; // Move right
+    }
+    if (moveLeft && selection == 5) {
+      squidx -= speed; // Move left
+    } else if (moveRight) {
+      squidx += speed; // Move right
+    }
+    if (moveLeft && selection == 6) {
+      garyx -= speed; // Move left
+    } else if (moveRight) {
+      garyx += speed; // Move right
+    }
+    
+    if (screen == 4 && selection == 1){
+    if (showSprite1) {
+    image(spongepunch, spx, spy, 275, 275);
+    int currentTime = millis(); // Get current time
+    if (currentTime - spriteStartTime >= spriteDuration) {
+      showSprite1 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+ }
+    if (screen == 4 && selection == 2){
+    if (showSprite2) {
+    image(plankpunch, plankx, planky, 100, 100);
+    int currentTime2 = millis(); // Get current time
+    if (currentTime2 - spriteStartTime2 >= spriteDuration) {
+      showSprite2 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 4 && selection == 3){
+    if (showSprite3) {
+    image(patpunch, patx, paty, 275, 275);
+    int currentTime3 = millis(); // Get current time
+    if (currentTime3 - spriteStartTime2 >= spriteDuration) {
+      showSprite3 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 4 && selection == 4){
+    if (showSprite4) {
+    image(krabpunch, krabx, kraby, 275, 275);
+    int currentTime4 = millis(); // Get current time
+    if (currentTime4 - spriteStartTime2 >= spriteDuration) {
+      showSprite4 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 4 && selection == 5){
+    if (showSprite5) {
+    image(squidpunch, squidx, squidy, 275, 275);
+    int currentTime5 = millis(); // Get current time
+    if (currentTime5 - spriteStartTime2 >= spriteDuration) {
+      showSprite5 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 4 && selection == 6){
+    if (showSprite6) {
+    image(garypunch, garyx + 8, garyy, 100, 100);
+    int currentTime6 = millis(); // Get current time
+    if (currentTime6 - spriteStartTime6 >= spriteDuration) {
+      showSprite6 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  float kevinpunchr = random(1,100);
+  
+  if (kevinpunchr > 92) {
+    kevinStartTime = millis();
+    showKevinpunch = true;
+  }
+    if (showKevinpunch == true && kevindead == false) {
+    image(kevinpunch, kevinx, keviny, 400, 300);
+    int currentTimeKevin = millis();
+    if (currentTimeKevin - kevinStartTime >= kevinDuration) {
+    showKevinpunch = false;
+    kevinshow = false;
+  }
+ }
+   if (kevindead == true && screen == 4) {
+ if(mouseX>850 && mouseY>610 && mouseX<1050 && mouseY<685 && mousePressed==true){
+    
+    screen = 5;
+    background(255);
+    
+ }
+  //Turns button light grey when cursor is hovered over it.
+  else if(mouseX>850 && mouseY>610 && mouseX<1050 && mouseY<685){
+    fill(175);
+    rect(850,610,200,75);
+    fill(0);
+    textSize(38);
+    text("Next Round", 860, 660);
+    
+    
+  }
+  //Turns button grey when cursor is outside of button
+  else{
+    fill(131);
+    rect(850,610,200,75);
+    fill(0);
+    textSize(38);
+    text("Next Round", 860, 660);
+    
+  }
+ }
+}
+  
+
+void collisionr2() {
+ 
+  if (screen == 4) {
+if (showSprite1 == true && selection == 1){
+   if (spx + 150  > kevinx && sphbx < kevinhb && punch == false){
+   kevinenemyhit += 1;
+   kevinx += 50;
+   punch = true;
+}
+}
+if (showSprite2 == true && selection == 2){
+   if (plankx + 25 > kevinx && pkhbx < kevinhb && punch == false){
+   kevinenemyhit += 1;
+   kevinx += 50;
+   punch = true;
+}
+}
+if (showSprite3 == true && selection == 3){
+   if (patx + 150  > kevinx && pathbx < kevinhb && punch == false){
+   kevinenemyhit += 1;
+   kevinx += 50;
+   punch = true;
+}
+}
+if (showSprite4 == true && selection == 4){
+   if (krabx + 125  > kevinx && kbhbx < kevinhb && punch == false){
+   kevinenemyhit += 1;
+   kevinx += 50;
+   punch = true;
+}
+}
+if (showSprite5 == true && selection == 5){
+   if (squidx + 100  > kevinx && sqhbx < kevinhb && punch == false){
+   kevinenemyhit += 1;
+   kevinx += 50;
+   punch = true;
+}
+}
+if (showSprite6 == true && selection == 6){
+   if (garyx + 10  > bubblex && gyhbx < kevinhb && punch == false){
+   kevinenemyhit += 1;
+   kevinx += 50;
+   punch = true;
+}
+}
+if (showKevinpunch == true && selection == 1 && kevinshow == false) {
+   if (spx + 225 > kevinx) {
+   ph -=3;
+   kevinshow = true;
+   }
+}
+
+if (showKevinpunch == true && selection == 2 && kevinshow == false) {
+   if (plankx + 75 > bubblex) {
+   ph -=7;
+   kevinshow = true;
+   }
+}
+
+if (showKevinpunch == true && selection == 3 && kevinshow == false) {
+   if (patx + 200 > bubblex) {
+   ph -=3;
+   kevinshow = true;
+   }
+}
+
+if (showKevinpunch == true && selection == 4 && kevinshow == false) {
+   if (krabx + 225 > bubblex) {
+   ph -=5;
+   kevinshow = true;
+   }
+}
+
+if (showKevinpunch == true && selection == 5 && kevinshow == false) {
+   if (squidx + 175 > bubblex) {
+   ph -=5;
+   kevinshow = true;
+   }
+}
+if (showKevinpunch == true && selection == 6 && kevinshow == false) {
+   if (garyx + 75 > bubblex) {
+   ph -=10;
+   kevinshow = true;
+   }
+}
+if (kevinx > 780) {
+  kevinx = 780;
+}
+
+if (screen == 4) {
+  
+if (kevinenemyhit == 1) {
+  keh = 140;
+    
+    
+  
+}
+if (kevinenemyhit == 2) {
+  keh = 130;
+    
+}
+if (kevinenemyhit == 3) {
+  keh = 120;
+    
+  
+}
+if (kevinenemyhit == 4) {
+  keh = 110;
+  
+ 
+}
+if (kevinenemyhit == 5) {
+  keh = 100;
+    
+  
+}
+if (kevinenemyhit == 6) {
+  keh = 90;
+ 
+  
+}
+if (kevinenemyhit == 7) {
+  keh = 80;
+    
+  
+}
+if (kevinenemyhit == 8) {
+  keh = 70;
+    
+ 
+}
+if (kevinenemyhit == 9) {
+  keh = 60; 
+}
+if (kevinenemyhit == 10) {
+  keh = 50; 
+}
+if (kevinenemyhit ==11) {
+  keh = 40; 
+}
+if (kevinenemyhit == 12) {
+  keh = 30; 
+}
+if (kevinenemyhit == 13) {
+  keh = 20; 
+}
+if (kevinenemyhit == 14) {
+  keh = 10; 
+}
+if (kevinenemyhit == 15) {
+  keh = 0; 
+  kevindead = true;
+  wr2 = true;
+  spx = 100;
+  plankx = 100;
+  patx = 100;
+  krabx = 100;
+  squidx = 100;
+  garyx = 100;
+}
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+  
+}
+
+void roundThree() {
+ if(!r3.isPlaying())
+ {
+  r3.play(); 
+ }
+ if(r2.isPlaying())
+ {
+  r2.pause(); 
+ }
+  image(krust, 0,0,1080,720);
+  textSize(50);
+  fill(0);
+  if (doodledead == false) {
+  text("Enemy Health: " + deh, 600, 100, 400, 200);
+  text("Player Health: " + ph, 200, 100, 400, 200);
+  
+  }
+  int currentTime = millis();
+  
+    if (screen == 5){
+      
+  if (showDoodlepunch == false) {
+  image(doodle, doodlex, doodley, 400, 300);
+  }
+  
+  doodlex = doodlex + doodlespeed;
+    
+    
+ if (doodlex <= 450 ) {
+  
+    direction = direction * -1;
+    doodlex += 5;
+    doodlespeed= -doodlespeed;
+ }
+ if (doodlex >= 700) {
+   direction =  direction * -1;
+   doodlex -= 5;
+   doodlespeed= -doodlespeed;
+ }
+
+}
+  if (wr3 == false) {
+  switch(selection) {
+  case 1: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(sponge, spx, spy, 275,275);
+  break;
+  }
+  case 2: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(plank, plankx, planky, 100,100);
+  break;
+  }
+  case 3: 
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(pat, patx, paty, 275, 275);
+  break;
+  }
+  case 4:
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(krab, krabx, kraby, 275, 275);break;
+  }
+  case 5:
+  if (currentTime - spriteStartTime3 >= spriteDuration) {
+  image(squid, squidx, squidy, 275, 275);break;
+  }
+  
+  case 6: 
+  if (currentTime - spriteStartTime6 >= spriteDuration) {
+  image(gary, garyx, garyy, 100,100);
+  break;
+}
+}
+  }
+  
+if (screen == 5 && wr3 == false) {
+  
+    if (moveLeft && selection == 1) {
+      spx -= speed; // Move left
+    } else if (moveRight) {
+      spx += speed; // Move right
+    }
+    if (moveLeft && selection == 2) {
+      plankx -= speed; // Move left
+    } else if (moveRight) {
+      plankx += speed; // Move right
+    }
+    if (moveLeft && selection == 3) {
+      patx -= speed; // Move left
+    } else if (moveRight) {
+      patx += speed; // Move right
+    }
+    if (moveLeft && selection == 4) {
+      krabx -= speed; // Move left
+    } else if (moveRight) {
+      krabx += speed; // Move right
+    }
+    if (moveLeft && selection == 5) {
+      squidx -= speed; // Move left
+    } else if (moveRight) {
+      squidx += speed; // Move right
+    }
+    if (moveLeft && selection == 6) {
+      garyx -= speed; // Move left
+    } else if (moveRight) {
+      garyx += speed; // Move right
+    }
+    
+    if (screen == 5 && selection == 1){
+    if (showSprite1) {
+    image(spongepunch, spx, spy, 275, 275);
+    int currentTime1 = millis(); // Get current time
+    if (currentTime1 - spriteStartTime >= spriteDuration) {
+      showSprite1 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+ }
+    if (screen == 5 && selection == 2){
+    if (showSprite2) {
+    image(plankpunch, plankx, planky, 100, 100);
+    int currentTime2 = millis(); // Get current time
+    if (currentTime2 - spriteStartTime2 >= spriteDuration) {
+      showSprite2 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 5 && selection == 3){
+    if (showSprite3) {
+    image(patpunch, patx, paty, 275, 275);
+    int currentTime3 = millis(); // Get current time
+    if (currentTime3 - spriteStartTime2 >= spriteDuration) {
+      showSprite3 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 5 && selection == 4){
+    if (showSprite4) {
+    image(krabpunch, krabx, kraby, 275, 275);
+    int currentTime4 = millis(); // Get current time
+    if (currentTime4 - spriteStartTime2 >= spriteDuration) {
+      showSprite4 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 5 && selection == 5){
+    if (showSprite5) {
+    image(squidpunch, squidx, squidy, 275, 275);
+    int currentTime5 = millis(); // Get current time
+    if (currentTime5 - spriteStartTime2 >= spriteDuration) {
+      showSprite5 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+  if (screen == 5 && selection == 6){
+    if (showSprite6) {
+    image(garypunch, garyx + 8, garyy, 100, 100);
+    int currentTime6 = millis(); // Get current time
+    if (currentTime6 - spriteStartTime6 >= spriteDuration) {
+      showSprite6 = false; // Hide sprite after duration
+      punch = false;
+    }
+  }
+  }
+    float doodlepunchr = random(1,100);
+  
+  if (doodlepunchr > 85) {
+    doodleStartTime = millis();
+    showDoodlepunch = true;
+  }
+    if (showDoodlepunch == true && doodledead == false) {
+    image(doodlepunch, doodlex, doodley, 400, 300);
+    int currentTimeDoodle = millis();
+    if (currentTimeDoodle - doodleStartTime >= doodleDuration) {
+    showDoodlepunch = false;
+    doodleshow = false;
+  }
+ }
+}
+}
+  
+
+
+void collisionr3() {
+  
+    if (screen == 5) {
+if (showSprite1 == true && selection == 1){
+   if (spx + 100  > doodlex && sphbx < doodlehb && punch == false){
+   doodleenemyhit += 1;
+   doodlex += 50;
+   punch = true;
+}
+}
+if (showSprite2 == true && selection == 2){
+   if (plankx +25  > doodlex && pkhbx < doodlehb && punch == false){
+   doodleenemyhit += 1;
+   doodlex += 50;
+   punch = true;
+}
+}
+if (showSprite3 == true && selection == 3){
+   if (patx + 100  > doodlex && pathbx < doodlehb && punch == false){
+   doodleenemyhit += 1;
+   doodlex += 50;
+   punch = true;
+}
+}
+if (showSprite4 == true && selection == 4){
+   if (krabx + 100  > doodlex && kbhbx < doodlehb && punch == false){
+   doodleenemyhit += 1;
+   doodlex += 50;
+   punch = true;
+}
+}
+if (showSprite5 == true && selection == 5){
+   if (squidx + 100  > doodlex && sqhbx < doodlehb && punch == false){
+   doodleenemyhit += 1;
+   doodlex += 50;
+   punch = true;
+}
+}
+if (showSprite6 == true && selection == 6){
+   if (garyx + 10  > doodlex && gyhbx < doodlehb && punch == false){
+   doodleenemyhit += 1;
+   doodlex += 50;
+   punch = true;
+}
+}
+if (showDoodlepunch == true && selection == 1 && doodleshow == false) {
+   if (spx + 225 > doodlex) {
+   ph -=5;
+   doodleshow = true;
+   }
+}
+
+if (showDoodlepunch == true && selection == 2 && doodleshow == false) {
+   if (plankx + 75 > doodlex) {
+   ph -=15;
+   doodleshow = true;
+   }
+}
+
+if (showDoodlepunch == true && selection == 3 && doodleshow == false) {
+   if (patx + 200 > doodlex) {
+   ph -=5;
+   doodleshow = true;
+   }
+}
+
+if (showDoodlepunch == true && selection == 4 && doodleshow == false) {
+   if (krabx + 225 > doodlex) {
+   ph -=10;
+   doodleshow = true;
+   }
+}
+
+if (showDoodlepunch == true && selection == 5 && doodleshow == false) {
+   if (squidx + 175 > doodlex) {
+   ph -=10;
+   doodleshow = true;
+   }
+}
+if (showDoodlepunch == true && selection == 6 && doodleshow == false) {
+   if (garyx + 75 > doodlex) {
+   ph -=20;
+   doodleshow = true;
+   }
+}
+if (doodlex > 780) {
+  doodlex = 780;
+}
+  
+  if (doodleenemyhit == 1) {
+  deh = 290; 
+}if (doodleenemyhit == 2) {
+  deh = 280; 
+}if (doodleenemyhit == 3) {
+  deh = 270; 
+}if (doodleenemyhit == 4) {
+  deh = 260; 
+}if (doodleenemyhit== 5) {
+  deh = 250; 
+}if (doodleenemyhit == 6) {
+  deh = 240; 
+}if (doodleenemyhit == 7) {
+  deh = 230; 
+}if (doodleenemyhit == 8) {
+  deh = 220; 
+}if (doodleenemyhit == 9) {
+  deh = 210; 
+}if (doodleenemyhit == 10) {
+  deh = 200; 
+}if (doodleenemyhit == 11) {
+  deh = 190; 
+}if (doodleenemyhit == 12) {
+  deh = 180; 
+}if (doodleenemyhit == 13) {
+  deh = 170; 
+}if (doodleenemyhit == 14) {
+  deh = 160; 
+}if (doodleenemyhit == 15) {
+  deh = 150; 
+}if (doodleenemyhit == 16) {
+  deh = 140; 
+}if (doodleenemyhit == 17) {
+  deh = 130; 
+}if (doodleenemyhit == 18) {
+  deh = 120; 
+}if (doodleenemyhit == 19) {
+  deh = 110; 
+}if (doodleenemyhit == 20) {
+  deh = 100; 
+}if (doodleenemyhit == 21) {
+  deh = 90; 
+}if (doodleenemyhit== 22) {
+  deh = 80; 
+}if (doodleenemyhit== 23) {
+  deh = 70; 
+}if (doodleenemyhit== 24) {
+  deh = 60; 
+}if (doodleenemyhit == 25) {
+  deh = 50; 
+}if (doodleenemyhit == 26) {
+  deh = 40; 
+}if (doodleenemyhit == 27) {
+  deh = 30; 
+}if (doodleenemyhit == 28) {
+  deh = 20; 
+}if (doodleenemyhit == 29) {
+  deh = 10; 
+}if (doodleenemyhit == 30) {
+  doodledead = true;
+  spx = 100;
+  plankx = 100;
+  patx = 100;
+  krabx = 100;
+  squidx = 100;
+  garyx = 100;
+  
+}
+if (doodledead) {
+  
+    screen = 6;
+}
+}
+}
+
+
+
+
+
+void keyPressed() {
+  if (screen == 3 || screen == 4 || screen == 5) {
+  // Set movement flags when keys are pressed
+  if (key == 'a' || key == 'A') {
+    moveLeft = true;
+    moveRight = false;
+  } else if (key == 'd' || key == 'D') {
+    moveLeft = false;
+    moveRight = true;
+  }
+  if (key == 'x' || key == 'X' && selection == 1) {
+    showSprite1 = true; // Show sprite when 'X' key is pressed
+    spriteStartTime = millis(); // Record start time
+  }
+  if (key == 'x' || key == 'X' && selection == 2) {
+    showSprite2 = true; // Show sprite when 'X' key is pressed
+    spriteStartTime2 = millis(); // Record start time
+  }
+  if (key == 'x' || key == 'X' && selection == 3) {
+    showSprite3 = true; // Show sprite when 'X' key is pressed
+    spriteStartTime3 = millis(); // Record start time
+  }
+  if (key == 'x' || key == 'X' && selection == 4) {
+    showSprite4 = true; // Show sprite when 'X' key is pressed
+    spriteStartTime2 = millis(); // Record start time
+  }
+  if (key == 'x' || key == 'X' && selection == 5) {
+    showSprite5 = true; // Show sprite when 'X' key is pressed
+    spriteStartTime2 = millis(); // Record start time
+  }
+  if (key == 'x' || key == 'X' && selection == 6) {
+    showSprite6 = true; // Show sprite when 'X' key is pressed
+    spriteStartTime6 = millis(); // Record start time
+  }
+  if (ph <= 0)
+  {
+    System.exit(0);
+  }
+}
+}
+void keyReleased() {
+  if (screen == 3 || screen == 4 || screen == 5) {
+  // Reset movement flags when keys are released
+  if (key == 'a' || key == 'A' || key == 'd' || key == 'D') {
+    moveLeft = false;
+    moveRight = false;
+  }
+  }
+}
+
+
+
+  
+void winScreen() {
+  if (screen == 6){
+    
+    background(0);
+    text("YOU WIM", 500, 70, 1000, 1000);
+      if(r3.isPlaying())
+  {
+  r3.pause();
+  }
+  if(!win.isPlaying())
+  {
+    win.play();
+  }
+}
+}
+
+
+
+
+
